@@ -257,13 +257,6 @@
                 card.onclick = () => openModal(a);
                 
                 card.innerHTML = `
-                    <div class="vinyl-container aspect-square border-b border-white/10 overflow-hidden">
-                        <div class="vinyl-record">
-                            <div class="vinyl-label">
-                                <span class="serif text-[9px] text-center px-2 text-white opacity-60 leading-tight">${a.displayArtist}</span>
-                            </div>
-                        </div>
-                    </div>
                     <div class="p-8">
                         <p class="mono text-[10px] uppercase text-[var(--accent-color)] opacity-70 tracking-widest mb-1">Featured Artist</p>
                         <h2 class="serif text-3xl font-bold text-white mb-4 group-hover:text-[var(--accent-color)] transition-colors">${a.displayArtist}</h2>

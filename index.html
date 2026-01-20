@@ -134,6 +134,18 @@
             color: var(--night-bg);
             border-color: var(--accent-color);
         }
+
+        .random-btn {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(74, 222, 128, 0.2);
+        }
+        
+        .random-btn:hover {
+            background: var(--accent-color);
+            color: var(--night-bg);
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -149,7 +161,10 @@
                     A curation based on Haruki Murakami
                 </p>
             </div>
-            <div class="flex flex-col items-end">
+            <div class="flex flex-col items-end gap-6">
+                <button onclick="pickRandomArtist()" class="random-btn px-6 py-2 mono text-[10px] uppercase tracking-widest text-[var(--accent-color)] rounded-full">
+                    Shuffle Artist
+                </button>
                 <input type="text" id="searchInput" placeholder="Search artist..." 
                     class="search-bar bg-transparent border-b border-white/20 pb-2 w-72 text-xl serif italic transition-all focus:w-80">
             </div>
@@ -272,6 +287,11 @@
                 `;
                 grid.appendChild(card);
             });
+        }
+
+        function pickRandomArtist() {
+            const randomIndex = Math.floor(Math.random() * sortedArtists.length);
+            openModal(sortedArtists[randomIndex]);
         }
 
         function openModal(artistGroup) {

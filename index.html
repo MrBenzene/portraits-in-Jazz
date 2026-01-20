@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portraits in Jazz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&family=Inter:wght@300;400;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --night-bg: #050806; 
+            --night-card: #0c1410; 
+            --ink-color: #e4e4e4;
+            --accent-color: #4ade80; 
+            --dim-text: #6b7a72;
+        }
+
+        body {
+            background-color: var(--night-bg);
+            color: var(--ink-color);
+            font-family: 'Inter', sans-serif;
+            background-image: radial-gradient(circle at 50% 50%, #0d1a13 0%, #050806 100%);
+        }
+
+        .serif { font-family: 'Crimson Pro', serif; }
+        .mono { font-family: 'Courier Prime', monospace; }
+
+        .album-card {
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid rgba(255,255,255,0.03);
+            background-color: var(--night-card);
+            overflow: hidden;
+        }
+
+        .album-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8);
+            border-color: rgba(74, 222, 128, 0.2);
+        }
+
+        .vinyl-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f1c15 0%, #050806 100%);
+        }
+
+        .vinyl-record {
+            width: 80%;
+            aspect-ratio: 1/1;
+            border-radius: 50%;
+            background: repeating-radial-gradient(
+                circle at center,
+                #111 0px,
+                #111 2px,
+                #181818 3px,
+                #111 4px
+            );
+            box-shadow: 0 0 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+            transition: transform 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .album-card:hover .vinyl-record {
+            transform: scale(1.05) rotate(90deg);
+        }
+
+        .vinyl-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35%;
+            height: 35%;
+            border-radius: 50%;
+            background: var(--night-card);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .vinyl-label::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--night-bg);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .grain {
+            position: fixed;
+            top: 0; left: 0; height: 100%; width: 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0.2;
+            background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        .platform-link {
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .platform-link:hover {
+            background-color: var(--accent-color);
+            color: var(--night-bg);
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="grain"></div>
+
+    <header class="max-w-6xl mx-auto pt-24 px-6 mb-20">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-12">
+            <div>
+                <h1 class="serif text-7xl md:text-9xl font-bold tracking-tighter leading-none mb-6">
+                    Portraits <br><span class="text-[var(--accent-color)] opacity-80">in Jazz</span>
+                </h1>
+                <p class="mono text-xs opacity-40 uppercase tracking-[0.4em]">
+                    A curation based on Haruki Murakami
+                </p>
+            </div>
+            <div class="flex flex-col items-end">
+                <input type="text" id="searchInput" placeholder="Search artist..." 
+                    class="search-bar bg-transparent border-b border-white/5 pb-2 w-72 text-xl serif italic placeholder:opacity-20 transition-all focus:w-80">
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 pb-32">
+        <div id="albumGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-16">
+            <!-- Artist Cards injected here -->
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 py-24 px-6 text-center">
+        <p class="mono text-[10px] uppercase tracking-[0.5em] opacity-20">Deepness is not a matter of volume.</p>
+    </footer>
+
+    <!-- Artist Detail Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/95 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-xl">
+        <div class="bg-[var(--night-card)] max-w-5xl w-full h-[90vh] md:h-auto max-h-[90vh] rounded-sm relative shadow-2xl overflow-hidden border border-white/10 flex flex-col md:flex-row">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-3xl font-light hover:text-[var(--accent-color)] z-50 text-white/30 transition-colors">&times;</button>
+            <div id="modalContent" class="flex flex-col md:flex-row w-full overflow-y-auto">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const rawAlbums = [
+            { id: 1, artist: "Chet Baker", album: "Chet Baker Quartet", group: "Chet Baker", year: 1953 },
+            { id: 2, artist: "Benny Goodman And His Orchestra", album: "Arrangements By Eddie Sauter", group: "Benny Goodman", year: 1953 },
+            { id: 3, artist: "Charlie Parker & Dizzy Gillespie", album: "Bird And Diz", group: "Charlie Parker", year: 1952 },
+            { id: 4, artist: "Herb Geller", album: "Fire In The West", group: "Herb Geller", year: 1957 },
+            { id: 5, artist: "Art Blakey's Jazz Messengers", album: "Les Liaisons Dangereuses 1960", group: "Art Blakey", year: 1960 },
+            { id: 6, artist: "Stan Getz", album: "At Storyville", group: "Stan Getz", year: 1951 },
+            { id: 7, artist: "Billie Holiday", album: "The Golden Years", group: "Billie Holiday", year: 1962 },
+            { id: 8, artist: "Chu Berry And His Stompy Stevedores", album: '"Chu"', group: "Chu Berry", year: 1955 },
+            { id: 9, artist: "The Charlie Mingus Jazz Workshop", album: "Pithecanthropus Erectus", group: "Charles Mingus", year: 1956 },
+            { id: 10, artist: "Bobby Hackett And His Jazz Band", album: "Coast Concert", group: "Bobby Hackett", year: 1956 },
+            { id: 11, artist: "Bill Evans Trio", album: "Waltz For Debby", group: "Bill Evans", year: 1962 },
+            { id: 12, artist: "Bix Beiderbecke", album: "The Bix Beiderbecke Story / Vol. 2", group: "Bix Beiderbecke", year: 1952 },
+            { id: 13, artist: "Cannonball Adderley", album: "Cannonball Adderley-Live!", group: "Cannonball Adderley", year: 1965 },
+            { id: 14, artist: "Duke Ellington And His Orchestra", album: "In A Mellotone", group: "Duke Ellington", year: 1940 },
+            { id: 15, artist: "Ella Fitzgerald & Louis Armstrong", album: "Ella And Louis Again (Vol. 2)", group: "Ella Fitzgerald", year: 1957 },
+            { id: 16, artist: "Miles Davis", album: "'Four' & More", group: "Miles Davis", year: 1966 },
+            { id: 17, artist: "Charlie Christian", album: "Solo Flight • The Genius Of Charlie Christian", group: "Charlie Christian", year: 1972 },
+            { id: 18, artist: "Eric Dolphy", album: "Out There", group: "Eric Dolphy", year: 1961 },
+            { id: 19, artist: "Count Basie Orchestra", album: "Basie In London", group: "Count Basie", year: 1956 },
+            { id: 20, artist: "Gerry Mulligan Quartet", album: "What Is There To Say?", group: "Gerry Mulligan", year: 1959 },
+            { id: 21, artist: "Nat 'King' Cole And His Trio", album: "After Midnight", group: "Nat King Cole", year: 1957 },
+            { id: 22, artist: "Dizzy Gillespie", album: "At Newport", group: "Dizzy Gillespie", year: 1957 },
+            { id: 23, artist: "Dexter Gordon", album: "Homecoming - Live At The Village Vanguard", group: "Dexter Gordon", year: 1977 },
+            { id: 24, artist: "Louis Armstrong", album: "A Portrait Of Louis Armstrong 1928", group: "Louis Armstrong", year: 1928 },
+            { id: 25, artist: "Thelonious Monk Quintet", album: "5 By Monk By 5", group: "Thelonious Monk", year: 1959 },
+            { id: 26, artist: "The Lester Young-Teddy Wilson Quartet", album: "Pres And Teddy", group: "Lester Young", year: 1959 },
+            { id: 27, artist: "Sonny Rollins", album: "The Bridge", group: "Sonny Rollins", year: 1962 },
+            { id: 28, artist: "The Horace Silver Quintet", album: "Song For My Father", group: "Horace Silver", year: 1965 },
+            { id: 29, artist: "Anita O'Day", album: "At Mister Kelly's", group: "Anita O'Day", year: 1958 },
+            { id: 30, artist: "The Modern Jazz Quartet", album: "Concorde", group: "Modern Jazz Quartet", year: 1955 },
+            { id: 31, artist: "Teddy Wilson", album: "Mr. Wilson (Fabulous Piano)", group: "Teddy Wilson", year: 1955 },
+            { id: 32, artist: "Tex Beneke & Glenn Miller", album: "Music Made Famous By Glenn Miller", group: "Glenn Miller", year: 1955 },
+            { id: 33, artist: "Wes Montgomery", album: "Full House", group: "Wes Montgomery", year: 1962 },
+            { id: 34, artist: "Clifford Brown And Max Roach", album: "Study In Brown", group: "Clifford Brown", year: 1955 },
+            { id: 35, artist: "The Poll Winners", album: "The Poll Winners", group: "Ray Brown", year: 1957 },
+            { id: 36, artist: "Mel Tormé", album: "Olé Tormé", group: "Mel Tormé", year: 1959 },
+            { id: 37, artist: "Shelly Manne & His Men", album: "At The Black Hawk Vol. 1", group: "Shelly Manne", year: 1960 },
+            { id: 38, artist: "June Christy & Stan Kenton", album: "Duet", group: "June Christy", year: 1955 },
+            { id: 39, artist: "Django Reinhardt", album: "Djangology", group: "Django Reinhardt", year: 1961 },
+            { id: 40, artist: "J.A.T.P.", album: "Norman Granz' J.A.T.P. (Vol. 16)", group: "Norman Granz", year: 1954 },
+            { id: 41, artist: "Ornette Coleman", album: "Town Hall • 1962", group: "Ornette Coleman", year: 1965 },
+            { id: 42, artist: "Lee Morgan", album: "The Sidewinder", group: "Lee Morgan", year: 1964 },
+            { id: 43, artist: "Jimmy Rushing And His Orchestra", album: "Little Jimmy Rushing And The Big Brass", group: "Jimmy Rushing", year: 1958 },
+            { id: 44, artist: "Art Blakey & The Jazz Messengers", album: "A Night In Tunisia", group: "Art Blakey", year: 1961 },
+            { id: 45, artist: "Gene Krupa", album: "Plays Gerry Mulligan Arrangements", group: "Gene Krupa", year: 1959 },
+            { id: 46, artist: "Herbie Hancock", album: "Maiden Voyage", group: "Herbie Hancock", year: 1965 },
+            { id: 47, artist: "Lionel Hampton", album: "You Better Know It!!!", group: "Lionel Hampton", year: 1964 },
+            { id: 48, artist: "Herbie Mann", album: "Windows Opened", group: "Herbie Mann", year: 1968 },
+            { id: 49, artist: "Hoagy Carmichael", album: "Memphis In June", group: "Hoagy Carmichael", year: 1956 },
+            { id: 50, artist: "Tony Bennett / Ralph Sharon", album: "The Tony Bennett Song Book", group: "Tony Bennett", year: 1958 },
+            { id: 51, artist: "Eddie Condon And His All-Stars", album: "Bixieland", group: "Eddie Condon", year: 1955 },
+            { id: 52, artist: "Jackie And Roy", album: "Storyville Presents Jackie And Roy", group: "Jackie And Roy", year: 1955 },
+            { id: 53, artist: "Art Pepper", album: "Art Pepper Meets The Rhythm Section", group: "Art Pepper", year: 1957 },
+            { id: 54, artist: "Frank Sinatra", album: "Swing Easy!", group: "Frank Sinatra", year: 1954 },
+            { id: 55, artist: "Helen Merrill", album: "Dream Of You", group: "Helen Merrill", year: 1957 }
+        ];
+
+        const artistGroups = rawAlbums.reduce((acc, curr) => {
+            if (!acc[curr.group]) {
+                acc[curr.group] = { displayArtist: curr.group, albums: [] };
+            }
+            acc[curr.group].albums.push(curr);
+            return acc;
+        }, {});
+
+        const sortedArtists = Object.values(artistGroups).sort((a, b) => a.displayArtist.localeCompare(b.displayArtist));
+        const grid = document.getElementById('albumGrid');
+
+        function renderArtists(filter = '') {
+            grid.innerHTML = '';
+            const filtered = sortedArtists.filter(a => a.displayArtist.toLowerCase().includes(filter.toLowerCase()));
+
+            filtered.forEach((a, index) => {
+                const card = document.createElement('div');
+                card.className = `album-card p-0 cursor-pointer animate-in rounded-sm flex flex-col relative group`;
+                card.style.animationDelay = `${index * 0.03}s`;
+                card.onclick = () => openModal(a);
+                
+                card.innerHTML = `
+                    <div class="vinyl-container aspect-square border-b border-white/5 overflow-hidden">
+                        <div class="vinyl-record">
+                            <div class="vinyl-label">
+                                <span class="serif text-[8px] text-center px-2 opacity-40 leading-tight">${a.displayArtist}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <p class="mono text-[9px] uppercase text-[var(--accent-color)] opacity-40 tracking-widest mb-1">Featured Artist</p>
+                        <h2 class="serif text-3xl font-bold text-white mb-4 group-hover:text-[var(--accent-color)] transition-colors">${a.displayArtist}</h2>
+                        <div class="space-y-1">
+                            ${a.albums.slice(0, 2).map(alb => `<p class="serif italic text-xs opacity-40 truncate">${alb.album} (${alb.year})</p>`).join('')}
+                            ${a.albums.length > 2 ? `<p class="mono text-[8px] opacity-20 mt-2">+ ${a.albums.length - 2} more collections</p>` : ''}
+                        </div>
+                        <div class="mt-8 flex items-center justify-between">
+                            <span class="h-[1px] w-8 bg-white/10 group-hover:w-16 transition-all duration-500"></span>
+                            <span class="mono text-[9px] opacity-0 group-hover:opacity-100 transition-opacity tracking-widest">VIEW CATALOG</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openModal(artistGroup) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            
+            const albumsHtml = artistGroup.albums.map(a => {
+                const query = encodeURIComponent(`${a.artist} ${a.album} jazz vinyl`);
+                return `
+                <div class="mb-12 last:mb-0">
+                    <div class="mb-6">
+                        <span class="mono text-[9px] uppercase tracking-widest text-[var(--accent-color)] opacity-50">Release Year: ${a.year}</span>
+                        <h4 class="serif text-3xl font-bold text-white mt-1 leading-tight">${a.album}</h4>
+                        <p class="mono text-[10px] opacity-40 mt-1 uppercase tracking-wider">${a.artist}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="https://open.spotify.com/search/${query}" target="_blank" class="platform-link flex justify-center items-center p-4 bg-white/5 text-[10px] mono tracking-widest rounded-sm">SPOTIFY</a>
+                        <a href="https://music.apple.com/search?term=${query}" target="_blank" class="platform-link flex justify-center items-center p-4 bg-white/5 text-[10px] mono tracking-widest rounded-sm">APPLE</a>
+                        <a href="https://www.discogs.com/search/?q=${query}&type=all" target="_blank" class="platform-link flex justify-center items-center p-4 bg-[var(--accent-color)] text-[var(--night-bg)] font-bold text-[10px] mono tracking-widest rounded-sm">DISCOGS</a>
+                        <a href="https://www.youtube.com/results?search_query=${query}" target="_blank" class="platform-link flex justify-center items-center p-4 bg-white/5 text-[10px] mono tracking-widest rounded-sm">YOUTUBE</a>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            content.innerHTML = `
+                <div class="w-full md:w-2/5 p-16 flex flex-col justify-center items-center bg-black/40 text-center shrink-0 border-b md:border-b-0 md:border-r border-white/5">
+                    <div class="vinyl-record w-64 h-64 mb-12 shadow-2xl">
+                        <div class="vinyl-label"><span class="serif text-xs opacity-20 uppercase tracking-tighter">${artistGroup.displayArtist}</span></div>
+                    </div>
+                    <h2 class="serif text-5xl font-bold mb-6 tracking-tighter text-white">${artistGroup.displayArtist}</h2>
+                </div>
+                <div class="w-full md:w-3/5 p-12 md:p-20 bg-[#080d0a] overflow-y-auto">
+                    <div class="mb-16">
+                        <h3 class="mono text-[10px] mb-12 tracking-[0.4em] text-[var(--accent-color)] uppercase opacity-60">Complete Listing</h3>
+                        <div class="space-y-0">
+                            ${albumsHtml}
+                        </div>
+                    </div>
+                    <div class="pt-12 border-t border-white/5">
+                        <p class="mono text-[9px] uppercase tracking-widest mb-4 opacity-20">Murakami Literature Connection</p>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => renderArtists(e.target.value));
+
+        window.onclick = (e) => { if (e.target == document.getElementById('modal')) closeModal(); }
+
+        renderArtists();
+    </script>
+</body>
+</html>
